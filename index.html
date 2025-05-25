@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星语节点导航</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #334155;
+            background-color: #f8fafc;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #1e293b;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #60a5fa;
+        }
+
+        .support-btn {
+            background-color: #e2e8f0;
+            color: #1e293b;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .support-btn:hover {
+            background-color: #cbd5e1;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            max-width: 32rem;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            .hero p {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 4rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #1e293b;
+        }
+
+        /* Node Grid */
+        .nodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .node-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .node-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .node-card.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .node-header {
+            padding: 1rem 1rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .node-flag {
+            font-size: 1.5rem;
+        }
+
+        .node-info h3 {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .node-info p {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .node-stats {
+            padding: 0 1rem 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem;
+            background-color: #f1f5f9;
+            border-radius: 0.375rem;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #059669;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Selected Nodes Card */
+        .selected-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+
+        .selected-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background-color: #1e293b;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .badge:hover {
+            background-color: #334155;
+        }
+
+        /* Subscribe Button */
+        .subscribe-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .subscribe-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #2563eb;
+        }
+
+        /* Links Section */
+        .links-section {
+            margin-top: 2rem;
+        }
+
+        .link-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .link-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .link-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn {
+            background-color: white;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background-color: #f9fafb;
+        }
+
+        .copy-btn.copied {
+            background-color: #dcfce7;
+            border-color: #16a34a;
+            color: #16a34a;
+        }
+
+        .link-text {
+            background-color: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1e293b;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🌐 星语节点导航</div>
+            <ul class="nav-links">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#nodes">节点</a></li>
+            </ul>
+            <button class="support-btn" onclick="window.location.href='https://bigjackson.top'">支持</button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>全球高速节点服务</h1>
+            <p>选择全球优质节点，享受稳定快速的网络体验。支持多平台，一键订阅，即刻畅游全球网络。</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content" id="nodes">
+        <div class="container">
+            <h2 class="section-title">选择节点</h2>
+
+            <!-- Nodes Grid -->
+            <div class="nodes-grid" id="nodesGrid">
+                <!-- Nodes will be populated by JavaScript -->
+            </div>
+
+            <!-- Selected Nodes -->
+            <div class="selected-card">
+                <div class="card-header">
+                    <h3>已选择的节点 (<span id="selectedCount">0</span>)</h3>
+                </div>
+                <div class="card-content">
+                    <div id="selectedNodes">
+                        <p style="color: #64748b;">请选择您需要的节点</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscribe Button -->
+            <div class="subscribe-section">
+                <button class="subscribe-btn" id="subscribeBtn">订阅选中节点</button>
+            </div>
+
+            <!-- Links Section -->
+            <div class="selected-card hidden" id="linksSection">
+                <div class="card-header">
+                    <h3>节点链接</h3>
+                    <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.5rem;">点击复制按钮复制节点链接到您的客户端</p>
+                </div>
+                <div class="card-content" id="linksContent">
+                    <!-- Links will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 星语节点导航. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Node data
+        const nodes = [
+            {
+                id: "us-west",
+                country: "美国1",
+                city: "洛杉矶",
+                flag: "🇺🇸",
+                ping: "180ms",
+                load: "23%",
+                speed: "1Gbps",
+                status: "online",
+                link: "https://us.090828.xyz/4fd8d398-5a1e-4331-9db9-5d8a2976e832",
+            },
+            {
+                id: "japan",
+                country: "日本",
+                city: "东京",
+                flag: "🇯🇵",
+                ping: "80ms",
+                load: "12%",
+                speed: "1Gbps",
+                status: "online",
+                link: "https://jp.090828.xyz/05e8c741-e290-4cbe-94f6-d65379aca223",
+            },
+            {
+                id: "singapore",
+                country: "新加坡",
+                city: "新加坡",
+                flag: "🇸🇬",
+                ping: "120ms",
+                load: "34%",
+                speed: "500Mbps",
+                status: "online",
+                link: "https://jiedian2.090828.xyz/171c4c1c-53a8-49f4-bb78-319c0888a911",
+            },
+            {
+                id: "hongkong",
+                country: "香港",
+                city: "香港",
+                flag: "🇭🇰",
+                ping: "50ms",
+                load: "67%",
+                speed: "1Gbps",
+                status: "online",
+                link: "https://jiedian1.090828.xyz/3fb0ada1-857c-42e2-8c49-7d684916d24f",
+            },
+            {
+                id: "uk",
+                country: "英国",
+                city: "伦敦",
+                flag: "🇬🇧",
+                ping: "250ms",
+                load: "28%",
+                speed: "1Gbps",
+                status: "online",
+                link: "暂时没有",
+            },
+            {
+                id: "germany",
+                country: "德国",
+                city: "法兰克福",
+                flag: "🇩🇪",
+                ping: "230ms",
+                load: "15%",
+                speed: "1Gbps",
+                status: "online",
+                link: "暂时没有",
+            },
+            {
+                id: "canada",
+                country: "加拿大",
+                city: "多伦多",
+                flag: "🇨🇦",
+                ping: "190ms",
+                load: "41%",
+                speed: "500Mbps",
+                status: "online",
+                link: "暂时没有",
+            },
+        ];
+
+        // State
+        let selectedNodes = [];
+        let copiedLinks = [];
+
+        // DOM elements
+        const nodesGrid = document.getElementById('nodesGrid');
+        const selectedNodesDiv = document.getElementById('selectedNodes');
+        const selectedCount = document.getElementById('selectedCount');
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        const linksSection = document.getElementById('linksSection');
+        const linksContent = document.getElementById('linksContent');
+
+        // Initialize
+        function init() {
+            renderNodes();
+            updateSelectedNodes();
+            
+            subscribeBtn.addEventListener('click', handleSubscribe);
+        }
+
+        // Render nodes grid
+        function renderNodes() {
+            nodesGrid.innerHTML = nodes.map(node => `
+                <div class="node-card" data-node-id="${node.id}" onclick="toggleNode('${node.id}')">
+                    <div class="node-header">
+                        <div class="node-flag">${node.flag}</div>
+                        <div class="node-info">
+                            <h3>${node.country}</h3>
+                            <p>${node.city}</p>
+                        </div>
+                    </div>
+                    <div class="node-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${node.ping}</div>
+                            <div class="stat-label">延迟</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${node.load}</div>
+                            <div class="stat-label">负载</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${node.speed}</div>
+                            <div class="stat-label">带宽</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">在线</div>
+                            <div class="stat-label">状态</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle node selection
+        function toggleNode(nodeId) {
+            const index = selectedNodes.indexOf(nodeId);
+            if (index > -1) {
+                selectedNodes.splice(index, 1);
+            } else {
+                selectedNodes.push(nodeId);
+            }
+            
+            updateSelectedNodes();
+            updateNodeCards();
+        }
+
+        // Update selected nodes display
+        function updateSelectedNodes() {
+            selectedCount.textContent = selectedNodes.length;
+            
+            if (selectedNodes.length === 0) {
+                selectedNodesDiv.innerHTML = '<p style="color: #64748b;">请选择您需要的节点</p>';
+            } else {
+                const selectedNodeData = nodes.filter(node => selectedNodes.includes(node.id));
+                selectedNodesDiv.innerHTML = `
+                    <div class="selected-badges">
+                        ${selectedNodeData.map(node => `
+                            <span class="badge" onclick="toggleNode('${node.id}')">
+                                ${node.flag} ${node.country} ×
+                            </span>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // Update node card styles
+        function updateNodeCards() {
+            const nodeCards = document.querySelectorAll('.node-card');
+            nodeCards.forEach(card => {
+                const nodeId = card.dataset.nodeId;
+                if (selectedNodes.includes(nodeId)) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+        }
+
+        // Handle subscribe button click
+        function handleSubscribe() {
+            if (selectedNodes.length === 0) {
+                alert('请先选择至少一个节点！');
+                return;
+            }
+            
+            showLinks();
+        }
+
+        // Show subscription links
+        function showLinks() {
+            const selectedNodeData = nodes.filter(node => selectedNodes.includes(node.id));
+            
+            linksContent.innerHTML = selectedNodeData.map(node => `
+                <div class="link-item">
+                    <div class="link-header">
+                        <div class="link-info">
+                            <span style="font-size: 1.125rem;">${node.flag}</span>
+                            <span style="font-weight: 500;">${node.country} - ${node.city}</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('${node.link}', '${node.id}')">
+                            <span id="copy-icon-${node.id}">📋</span>
+                            <span id="copy-text-${node.id}">复制链接</span>
+                        </button>
+                    </div>
+                    <div class="link-text">${node.link}</div>
+                </div>
+            `).join('');
+            
+            linksSection.classList.remove('hidden');
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard(link, nodeId) {
+            try {
+                await navigator.clipboard.writeText(link);
+                
+                // Update button state
+                const copyIcon = document.getElementById(`copy-icon-${nodeId}`);
+                const copyText = document.getElementById(`copy-text-${nodeId}`);
+                const copyBtn = copyIcon.parentElement;
+                
+                copyIcon.textContent = '✓';
+                copyText.textContent = '已复制';
+                copyBtn.classList.add('copied');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    copyIcon.textContent = '📋';
+                    copyText.textContent = '复制链接';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+                
+            } catch (err) {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动复制链接');
+            }
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
